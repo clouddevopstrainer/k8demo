@@ -1,6 +1,19 @@
 # -------------------
 # MongoDB Deployment
 # -------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,9 +38,11 @@ spec:
               mountPath: /data/db
       volumes:
         - name: mongo-storage
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: mongo-pvc
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -64,19 +79,19 @@ spec:
       containers:
         - name: walmart-app
           image: walmart-app:latest
-          imagePullPolicy: Never   # Important for Minikube local image
+          imagePullPolicy: Never   # For Minikube local image
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_DATA_MONGODB_HOST
-              value: mongo
-            - name: SPRING_DATA_MONGODB_PORT
-              value: "27017"
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongo:27017/walmartdb
+            - name: SERVER_PORT
+              value: "8080"
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 15
+            initialDelaySeconds: 20
             periodSeconds: 5
           livenessProbe:
             httpGet:
@@ -84,8 +99,16 @@ spec:
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
