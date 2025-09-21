@@ -68,6 +68,18 @@ spec:
               value: mongo
             - name: SPRING_DATA_MONGODB_PORT
               value: "27017"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
 
 ---
 apiVersion: v1
