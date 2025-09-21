@@ -57,10 +57,14 @@ spec:
       labels:
         app: walmart-app
     spec:
+      initContainers:
+        - name: wait-for-mongo
+          image: busybox:1.35
+          command: ['sh', '-c', 'until nc -z mongo 27017; do echo "Waiting for MongoDB..."; sleep 5; done;']
       containers:
         - name: walmart-app
           image: walmart-app:latest
-          imagePullPolicy: Never   # ✅ Important for Minikube local image
+          imagePullPolicy: Never   # Important for Minikube local image
           ports:
             - containerPort: 8080
           env:
