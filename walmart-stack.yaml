@@ -60,6 +60,7 @@ spec:
       containers:
         - name: walmart-app
           image: walmart-app:latest
+          imagePullPolicy: Never   # ✅ Important for Minikube local image
           ports:
             - containerPort: 8080
           env:
