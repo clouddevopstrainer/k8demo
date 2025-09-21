@@ -15,6 +15,7 @@ spec:
       containers:
         - name: walmart-container
           image: walmart-app:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 8080
 ---
